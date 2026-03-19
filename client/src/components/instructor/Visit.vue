@@ -112,6 +112,6 @@ const cancelVisit = () => {
 </template>
 
 <style scoped>
-@import "../assets/css/visit.css";
+@import "../../assets/css/visit.css";
 
 </style>

@@ -3,8 +3,8 @@
 import {useRouter} from "vue-router";
 import {ref} from "vue";
 import TableEntry from "@/components/TableEntry.vue";
-import ConfirmationDialog from "@/components/ConfirmationDialog.vue";
-import Alert from "@/components/Alert.vue";
+import ConfirmationDialog from "@/components/common/ConfirmationDialog.vue";
+import Alert from "@/components/common/Alert.vue";
 import ManageTable from "@/components/ManageTable.vue";
 
 const router = useRouter()
