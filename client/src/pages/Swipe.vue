@@ -2,7 +2,7 @@
 
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import Header from "@/components/Header.vue";
+import Header from "@/components/common/Header.vue";
 
 let inputRef = ref<HTMLInputElement>();
 

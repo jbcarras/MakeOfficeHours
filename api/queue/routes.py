@@ -176,6 +176,7 @@ def get_active_visits():
             "ta_id": visit["ta_id"],
             "ta_name": ta_name
         })
+    return visits
 
 @blueprint.route("/visits/<id>", methods=["GET"])
 @min_level('instructor')

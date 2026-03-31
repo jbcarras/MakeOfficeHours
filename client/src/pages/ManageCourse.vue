@@ -2,9 +2,10 @@
 
 import {useRouter} from "vue-router";
 import {ref} from "vue";
-import EnrollmentEntry from "@/components/EnrollmentEntry.vue";
-import ConfirmationDialog from "@/components/ConfirmationDialog.vue";
-import Alert from "@/components/Alert.vue";
+import TableEntry from "@/components/TableEntry.vue";
+import ConfirmationDialog from "@/components/common/ConfirmationDialog.vue";
+import Alert from "@/components/common/Alert.vue";
+import ManageTable from "@/components/ManageTable.vue";
 
 const router = useRouter()
 
@@ -181,54 +182,15 @@ const resetAuth = () => {
         <button @click="uploadCSVDialog?.show()">Enroll from CSV</button>
         <button @click="alertBox?.setError('Not implemented')" class="danger">Clear all Enrollments</button>
       </div>
-      <div id="enrollment-container">
-        <table id="enrollment-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Person Number</th>
-              <th>Preferred Name</th>
-              <th>Last Name</th>
-              <th>Role</th>
-              <th>User ID</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <EnrollmentEntry v-for="user in users"
-                             :user_id="user['user_id']"
-                             :preferred_name="user['preferred_name']"
-                             :last_name="user['last_name']"
-                             :pn="user['person_num']"
-                             :username="user['ubit']"
-                             :course_role="user['course_role']"
-            />
-          </tbody>
-        </table>
-      </div>
+      <ManageTable :headings="['Role', 'Preferred Name', 'Person Number', 'Role', 'User ID', 'User ID', 'Actions']" :table_data="users"/>
+
   </div>
-
-
 
 
 </template>
 
 <style scoped>
 
-#enrollment-container {
-  justify-content: center;
-  overflow-x: scroll;
-}
-
-#enrollment-table, tr, th, td {
-  border: 2px solid #D9D9D9;
-  border-collapse: collapse;
-}
-
-#enrollment-table {
-  width: 100%;
-  font-size: 1rem;
-}
 
 #manage-course {
   margin: 32px 8%;
@@ -245,8 +207,5 @@ br {
   margin-bottom: 24px;
 }
 
-th {
-  padding: 8px;
-}
 
 </style>

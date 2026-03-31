@@ -1,16 +1,18 @@
 <script setup lang="ts">
 
-import QueueEntry from "@/components/QueueEntry.vue";
+import QueueEntry from "@/components/instructor/QueueEntry.vue";
 import {nextTick, ref} from "vue";
-import ConfirmationDialog from "@/components/ConfirmationDialog.vue";
-import Visit from "@/components/Visit.vue";
-import EditInfo from "@/components/EditInfo.vue";
+import ConfirmationDialog from "@/components/common/ConfirmationDialog.vue";
+import Visit from "@/components/instructor/Visit.vue";
+import EditInfo from "@/components/common/EditInfo.vue";
 import {useRouter} from "vue-router";
-import Alert from "@/components/Alert.vue";
-import OnSiteEntry from "@/components/OnSiteEntry.vue";
+import Alert from "@/components/common/Alert.vue";
+import OnSiteEntry from "@/components/instructor/OnSiteEntry.vue";
+import ActiveEntry from "@/components/instructor/ActiveEntry.vue";
 
 const students = ref([])
 const onSite = ref([])
+const inVisit = ref([])
 
 const router = useRouter()
 
@@ -43,12 +45,20 @@ function getQueue() {
     onSite.value = data
   })
 
+  fetch("/api/active-visits").then(res => {
+    return res.json();
+  }).then(data => {
+    inVisit.value = data;
+  })
+
 }
+
 
 let pollTimeout = -1
 
 function poll() {
   getQueue();
+  getInProgressVisit();
   pollTimeout = setTimeout(poll, 2000);
 }
 
@@ -216,10 +226,10 @@ function getInProgressVisit() {
   }).then(data => {
     visitInfo.value = data
     visitDialog.value?.show()
-  }).catch(() => {})
+  }).catch(() => {
+    visitDialog.value?.hide()
+  })
 }
-
-getInProgressVisit()
 
 function signOut() {
   fetch("/api/signout", { method: "POST" }).then(res => {
@@ -248,13 +258,30 @@ router.beforeEach((to, from, next) => {
   next();
 })
 
+const endVisitDialog = ref<typeof ConfirmationDialog>();
+let endVisitID = 0;
+const endVisitTAName = ref<string>("");
 
+function endOtherTAsVisit(id: number) {
+  fetch("/api/end-visit", {
+    method: "POST",
+    body: JSON.stringify({"id": id, "reason": `[Visit canceled by ${taName}]`}),
+    headers: {"Content-Type": "application/json"}
+  }).then(res => {
+    if (res.ok) {
+      endVisitDialog.value?.hide();
+    } else {
+      error.value?.setError("Failed to end visit");
+      endVisitDialog.value?.hide();
+    }
+  })
+}
 
 </script>
 
 <template>
 
-  <Visit ref="visitDialog" :visit_info="visitInfo" @open="getQueue" @close="() => { getQueue(); getInProgressVisit(); } "/>
+  <Visit ref="visitDialog" :visit_info="visitInfo" @open="getQueue" @close="() => { getQueue(); } "/>
 
   <ConfirmationDialog @open="() => { resetForceEnqueueDialog(); nextTick(() => forceEnqueueMessageBox?.focus())}" @enter="submitForceEnqueue" ref="forceEnqueueDialog">
     <label for="force-enqueue">Student Identifier (UBITName or Person Number)</label><br/>
@@ -299,7 +326,19 @@ router.beforeEach((to, from, next) => {
       <button @click="deactivateStudentDialog?.hide()">Keep this student on-site.</button>
       <button @click="deactivateStudent" class="danger">Deactivate this student.</button>
     </div>
+  </ConfirmationDialog>
 
+  <ConfirmationDialog ref="endVisitDialog">
+    <p>
+      <strong>Are you sure?</strong>
+    </p>
+
+    <p>This is not your visit. You should only do this if {{ endVisitTAName }} cannot.</p>
+
+    <div class="input-modal-container">
+      <button @click="endVisitDialog?.hide()">Cancel</button>
+      <button @click="endOtherTAsVisit(endVisitID)" class="danger">End this visit.</button>
+    </div>
   </ConfirmationDialog>
 
   <EditInfo is_instructor="true" @name-change="(name) => { taName = name }" :default_name="taName" ref="editInfo"/>
@@ -324,6 +363,20 @@ router.beforeEach((to, from, next) => {
       </div>
     </div>
     <br/>
+    <div v-if="inVisit.length > 0">
+      <h2>In Visit</h2>
+      <div class="queue-container queue-section">
+        <ActiveEntry v-for="visit in inVisit"
+                     :student_name="visit['student_name']"
+                     :ubit="visit['student_username']"
+                     :ta_name="visit['ta_name']"
+                     :visit_id="visit['visitID']"
+                     @end-visit="() => { endVisitTAName = visit['ta_name']; endVisitID = visit['visitID']; endVisitDialog?.show(); }"
+        />
+      </div>
+    </div>
+
+
     <div v-if="students.length > 0">
       <h2>Queue</h2>
       <div class="queue-container queue-section">

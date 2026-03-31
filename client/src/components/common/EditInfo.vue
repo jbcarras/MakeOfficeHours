@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import ConfirmationDialog from "@/components/ConfirmationDialog.vue";
+import ConfirmationDialog from "@/components/common/ConfirmationDialog.vue";
 import {nextTick, ref} from "vue";
 
 const props = defineProps(["default_name", "is_instructor"]);

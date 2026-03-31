@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import QueueControlEntry from "@/components/QueueControlEntry.vue";
+import QueueControlEntry from "@/components/instructor/QueueControlEntry.vue";
 
 defineProps(["name", "ubit", "id"])
 defineEmits(["call-student", "remove-student", "move-to-end"])

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import githubLogo from "@/assets/github.svg";
-import Header from "@/components/Header.vue";
+import Header from "@/components/common/Header.vue";
 
 </script>
 
